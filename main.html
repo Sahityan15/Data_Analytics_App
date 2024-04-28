@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analysis App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            font-family: 'Exo 2', sans-serif;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        .form-control {
+            border-radius: 50px;
+            border: 1px solid #666;
+            background-color: #333;
+            color: #ddd;
+        }
+
+        .btn {
+            border-radius: 50px;
+            border: none;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .neon-btn {
+            transition: all 0.3s ease;
+        }
+
+        .neon-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.7), 0 0 40px rgba(0, 170, 255, 0.7), 0 0 60px rgba(0, 170, 255, 0.7);
+        }
+
+        #progress-bar {
+            display: none;
+            height: 20px;
+            margin-bottom: 20px;
+        }
+
+        #inner-progress-bar {
+            background-color: #00aaff;
+            transition: width 2s ease;
+        }
+
+        #result {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
+        }
+
+        #form-title {
+            color: #00aaff;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .neon-text {
+            animation: neon 1.5s infinite alternate;
+            cursor: pointer;
+        }
+
+        @keyframes neon {
+            0% {
+                text-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff, 0 0 30px #00aaff;
+            }
+
+            50% {
+                text-shadow: 0 0 20px #00aaff, 0 0 30px #00aaff, 0 0 40px #00aaff;
+            }
+
+            100% {
+                text-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff, 0 0 30px #00aaff;
+            }
+        }
+    </style>
+
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="form-title" class="text-center neon-text">Login</h1>
+
+        <form id="login-form">
+            <div class="form-group">
+                <input type="text" id="login-username" name="username" placeholder="Username" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="password" id="login-password" name="password" placeholder="Password" class="form-control">
+            </div>
+            <button type="button" onclick="login()" class="btn btn-primary btn-block neon-btn">Login</button>
+            <p class="text-center mt-3">Don't have an account? <span class="signup-link neon-text" onclick="showSignupForm()">Sign up</span></p>
+        </form>
+ 
+        <form id="signup-form" style="display: none;">
+            <div class="form-group">
+                <input type="text" id="signup-username" name="username" placeholder="Username" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="password" id="signup-password" name="password" placeholder="Password" class="form-control">
+            </div>
+            <button type="button" onclick="signup()" class="btn btn-success btn-block neon-btn">Sign up</button>
+            <p class="text-center mt-3">Already have an account? <span class="login-link neon-text" onclick="showLoginForm()">Login</span></p>
+        </form>
+    
+        <form id="upload-form" style="display: none;">
+            <div class="form-group">
+                <input type="file" id="file-input" name="file" class="form-control-file">
+            </div>
+            <button type="button" onclick="analyzeData()" class="btn btn-info btn-block neon-btn">Analyze Data</button>
+        </form>
+        <div id="progress-bar" class="progress">
+            <div id="inner-progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div id="result" class="mt-3"></div>
+        <div id="analysis-options" style="display: none;">
+            <h3 class="text-center mt-3 neon-text">Choose Analysis</h3>
+            <div class="text-center mt-3">
+                <button type="button" onclick="showRandomChart('bar')" class="btn btn-success mr-2 neon-btn">Bar Chart</button>
+                <button type="button" onclick="showRandomChart('line')" class="btn btn-info mr-2 neon-btn">Line Chart</button>
+                <button type="button" onclick="showRandomChart('pie')" class="btn btn-warning neon-btn">Pie Chart</button>
+                <button type="button" onclick="downloadChart()" class="btn btn-primary neon-btn ml-2">Download Chart</button>
+            </div>
+        </div>
+        <div id="summary"></div>
+    </div>
+    <script>
+        
+        var users = JSON.parse(localStorage.getItem('users')) || {
+            'admin': '123' 
+        };
+
+        function showLoginForm() {
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('form-title').innerText = 'Login';
+        }
+
+        function showSignupForm() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'block';
+            document.getElementById('form-title').innerText = 'Sign up';
+        }
+
+        function login() {
+            var username = document.getElementById('login-username').value;
+            var password = document.getElementById('login-password').value;
+
+            if (users[username] && users[username] === password) {
+                alert('Login successful');
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('upload-form').style.display = 'block';
+                document.getElementById('form-title').innerText = 'AI Data Analyst';
+            } else {
+                alert('Invalid username or password');
+            }
+        }
+
+        function signup() {
+            var username = document.getElementById('signup-username').value;
+            var password = document.getElementById('signup-password').value;
+
+            if (users[username]) {
+                alert('Username already taken');
+            } else {
+                users[username] = password;
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Account created successfully');
+                showLoginForm();
+            }
+        }
+
+        function analyzeData() {
+            var form = document.getElementById('upload-form');
+            var progressBar = document.getElementById('progress-bar');
+            var innerProgressBar = document.getElementById('inner-progress-bar');
+            var fileInput = document.getElementById('file-input');
+            var file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a file');
+                return;
+            }
+
+        
+            progressBar.style.display = 'block';
+
+          
+            setTimeout(function() {
+      
+                progressBar.style.display = 'none';
+
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var csvData = event.target.result;
+                    var lines = csvData.split('\n');
+                    var labels = lines[0].split(','); 
+                    displayAnalysisOptions(labels);
+                };
+                reader.readAsText(file);
+            }, 3000);
+        }
+
+        function displayAnalysisOptions(labels) {
+           
+            document.getElementById('result').innerText = 'Analysis completed!';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('analysis-options').style.display = 'block';
+
+            localStorage.setItem('labels', JSON.stringify(labels));
+        }
+
+        var currentChartType = '';
+        var currentChartData = {};
+
+        function showRandomChart(chartType) {
+
+            var chartCanvas = document.getElementById('chart');
+            if (chartCanvas) {
+                chartCanvas.parentNode.removeChild(chartCanvas);
+            }
+
+            currentChartType = chartType;
+
+            if (currentChartData[chartType]) {
+                displayChart(currentChartData[chartType], chartType);
+                generateSummary(currentChartData[chartType], chartType);
+            } else {
+                var labels = JSON.parse(localStorage.getItem('labels'));
+                switch (chartType) {
+                    case 'bar':
+                        currentChartData[chartType] = getRandomData(barChartData, labels);
+                        break;
+                    case 'line':
+                        currentChartData[chartType] = getRandomData(lineChartData, labels);
+                        break;
+                    case 'pie':
+                        currentChartData[chartType] = getRandomData(pieChartData, labels);
+                        break;
+                    default:
+                        break;
+                }
+                displayChart(currentChartData[chartType], chartType);
+                generateSummary(currentChartData[chartType], chartType);
+            }
+        }
+
+        function generateSummary(data, chartType) {
+            var totalLabels = data.labels.length;
+            var totalDataPoints = data.datasets[0].data.reduce((a, b) => a + b, 0);
+            var averageDataPoint = totalDataPoints / totalLabels;
+            var minDataPoint = Math.min(...data.datasets[0].data);
+            var maxDataPoint = Math.max(...data.datasets[0].data);
+
+            var summary = `Summary of ${capitalizeFirstLetter(chartType)} Chart:\n`;
+            summary += `Total Labels: ${totalLabels}\n`;
+            summary += `Total Data Points: ${totalDataPoints}\n`;
+            summary += `Average Data Point: ${averageDataPoint.toFixed(2)}\n`;
+            summary += `Minimum Data Point: ${minDataPoint}\n`;
+            summary += `Maximum Data Point: ${maxDataPoint}\n`;
+ 
+            document.getElementById('summary').innerText = summary;
+        }
+
+        function getRandomData(dataTemplate, labels) {
+            var newData = JSON.parse(JSON.stringify(dataTemplate)); 
+            newData.labels = labels;
+            newData.datasets[0].data = labels.map(function() {
+                return Math.floor(Math.random() * 100); 
+            });
+            return newData;
+        }
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Sample chart data
+        var barChartData = {
+            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+            datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        var lineChartData = {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [{
+                label: 'My First Dataset',
+                data: [65, 59, 80, 81, 56, 55, 40],
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        };
+
+        var pieChartData = {
+            labels: ['Red', 'Blue', 'Yellow'],
+            datasets: [{
+                data: [300, 50, 100],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        function displayChart(data, chartType) {
+            var chartCanvas = document.createElement('canvas');
+            chartCanvas.id = 'chart';
+            chartCanvas.style.display = 'block'; 
+            document.getElementById('analysis-options').appendChild(chartCanvas);
+
+            var ctx = chartCanvas.getContext('2d');
+            new Chart(ctx, {
+                type: chartType, 
+                data: data
+            });
+        }
+
+        function downloadChart() {
+            var canvas = document.getElementById('chart');
+            var link = document.createElement('a');
+            link.download = 'chart.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+
+</html>

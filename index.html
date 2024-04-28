@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('https://previews.123rf.com/images/venithepooh/venithepooh1804/venithepooh180400060/99554797-data-analysis-design-concept-analyst-trader-working.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        nav {
+            background-color: rgba(0, 0, 0, 0.5); 
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-right: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .container {
+            text-align: center;
+            margin-top: 80px; 
+            background-color: rgba(255, 255, 255, 0.7); 
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #0056b3;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #004080;
+        }
+        .description {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.7); 
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-size: 18px;
+            line-height: 1.6;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#" onclick="loadHomePage()">Home</a>
+        <a href="#" onclick="loadAboutPage()">About</a>
+        <a href="#" onclick="loadFutureUpdatesPage()">Future Updates</a>
+    </nav>
+    <div class="container">
+        <h1 style="font-weight: bold; font-size: 24px;">Welcome to our Website</h1>
+        <p style="font-size: 18px;">Explore the world of data analytics with us!</p>
+        <button onclick="window.location.href='main.html'">Let's Get Started</button>
+    </div>
+
+    <script>
+        function loadHomePage() {
+            var container = document.querySelector('.container');
+            container.innerHTML = `
+                <h1 style="font-weight: bold; font-size: 24px;">Welcome to our Website</h1>
+                <p style="font-size: 18px;">Explore the world of data analytics with us!</p>
+                <button onclick="window.location.href='index.html'">Let's Get Started</button>
+            `;
+        }
+
+        function loadAboutPage() {
+            var container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="description">
+                    <h1>About</h1>
+                    <p>The project is an application capable of analyzing uploaded datasets and providing graphical representations and insights of the dataset.</p>
+                </div>
+            `;
+        }
+
+        function loadFutureUpdatesPage() {
+            var container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="description">
+                    <h1>Future Updates</h1>
+                    <p>Stay tuned for exciting future updates! We are continuously working on enhancing the features and capabilities of our application to provide better data analytics solutions.</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
